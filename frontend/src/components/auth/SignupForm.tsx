@@ -8,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { GithubIcon } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/supabaseclient'; 
+import { useNavigate } from 'react-router-dom';
 
 const SignupForm = () => {
   const [fullName, setFullName] = useState('');
@@ -15,33 +17,44 @@ const SignupForm = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate signup - In a real app, you would connect this to your auth provider
+  
     try {
-      // Fake delay to simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // Show success message
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName, // Store the full name in metadata
+          },
+        },
+      });
+  
+      if (error) throw error;
+  
       toast({
         title: "Account created successfully",
-        description: "Welcome to ColorWave!",
+        description: "Check your email for the confirmation link.",
       });
+      
+      // Redirect to dashboard after signup 
+      navigate('/dashboard');
 
-      // Ideally redirect user to dashboard
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Sign up failed",
-        description: "There was an error creating your account.",
+        description: error.message || "There was an error creating your account.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="w-full space-y-6 animate-slide-up">
@@ -109,22 +122,29 @@ const SignupForm = () => {
         </Button>
       </form>
 
-      <div className="flex items-center gap-4">
-        <Separator className="flex-grow bg-gray-200" />
-        <span className="text-xs text-gray-400">OR CONTINUE WITH</span>
-        <Separator className="flex-grow bg-gray-200" />
+      <div className="flex items-center gap-2 w-full">
+      <div className="flex-1 border-t border-gray-300"></div>
+      <span className="text-xs text-gray-400 px-2">OR CONTINUE WITH</span>
+      <div className="flex-1 border-t border-gray-300"></div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <Button 
           variant="outline" 
           className="bg-white hover:bg-gray-50 border border-gray-200"
-          onClick={() => {
-            toast({
-              title: "Google Sign Up",
-              description: "This would connect to Google in a real application.",
+          onClick={async () => {
+            const { error } = await supabase.auth.signInWithOAuth({
+              provider: 'google',
             });
+            if (error) {
+              toast({
+                title: "Google sign in failed",
+                description: error.message,
+                variant: "destructive",
+              });
+            }
           }}
+          
         >
           <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" className="h-5 w-5 mr-2">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

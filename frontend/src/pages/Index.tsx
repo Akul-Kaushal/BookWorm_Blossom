@@ -9,7 +9,7 @@ const Index = () => {
       
       <div className="glass-card p-8 space-y-8 max-w-md animate-fade-in z-10">
         <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-custom">
-          Welcome to ColorWave
+          Welcome to My Book Store
         </h1>
         
         <p className="text-lg text-gray-700">
