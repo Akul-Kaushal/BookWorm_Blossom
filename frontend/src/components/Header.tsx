@@ -25,18 +25,20 @@ const Header = ({ onSearch, cartItemsCount = 0 }: HeaderProps) => {
               <Menu className="h-5 w-5" />
             </Button>
           )}
-          <div className="flex items-center gap-2">
-            <Book className="h-6 w-6 text-bookstore-pink" />
-            <span className="font-bold text-lg bg-gradient-to-r from-bookstore-purple to-bookstore-pink bg-clip-text text-transparent">
-              BookWorm
-            </span>
+          <div>
+            <div className="flex items-center gap-2">
+              <Book className="h-6 w-6 text-bookstore-pink" />
+              <span className="font-bold text-lg bg-gradient-to-r from-bookstore-purple to-bookstore-pink bg-clip-text text-transparent">
+                BookWorm  
+              </span>
+            </div>
           </div>
         </div>
         
         {/* Navigation - Only visible on desktop */}
         {!isMobile && (
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <a href="/" className="text-gray-800 hover:text-bookstore-purple transition-colors">Home</a>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium ml-8">
+            <a href="/" className="text-gray-800 hover:text-bookstore-purple transition-colors"> Home</a>
             <a href="/books" className="text-gray-800 hover:text-bookstore-purple transition-colors">Browse</a>
             <a href="/bestsellers" className="text-gray-800 hover:text-bookstore-purple transition-colors">Bestsellers</a>
             <a href="/new" className="text-gray-800 hover:text-bookstore-purple transition-colors">New Arrivals</a>

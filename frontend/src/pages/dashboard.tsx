@@ -3,34 +3,61 @@ import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import BookCard from '@/components/BookCard';
 import CategoryFilter from '@/components/CategoryFilter';
-import { books, categories } from '@/data/books';
 
 const Index = () => {
+  const [books, setBooks] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>(['All']);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [filteredBooks, setFilteredBooks] = useState(books);
+  const [filteredBooks, setFilteredBooks] = useState([]);
+
+  // 🔁 REPLACE THIS ENTIRE useEffect BLOCK
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/dashboard');
+        const json = await res.json();
+        const data = json.data as {
+          id: number;
+          product: string;
+          genre: string;
+          price: number;
+          status: string;
+        }[];
+  
+        const availableBooks = data.filter(book => book.status === 'available');
+        setBooks(availableBooks);
+  
+        const uniqueCategories = ['All', ...new Set(availableBooks.map(book => book.genre))];
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error('Error fetching books:', error);
+      }
+    };
+  
+    fetchBooks();
+  }, []);
+  
+
 
   useEffect(() => {
     let results = books;
     
-    // Apply category filter
     if (selectedCategory !== 'All') {
-      results = results.filter(book => book.category === selectedCategory);
+      results = results.filter(book => book.genre === selectedCategory);
     }
     
-    // Apply search filter
     if (searchTerm) {
       const lowercasedTerm = searchTerm.toLowerCase();
       results = results.filter(
         book =>
-          book.title.toLowerCase().includes(lowercasedTerm) ||
-          book.author.toLowerCase().includes(lowercasedTerm) ||
-          book.category.toLowerCase().includes(lowercasedTerm)
+          book.product.toLowerCase().includes(lowercasedTerm) ||
+          book.genre.toLowerCase().includes(lowercasedTerm)
       );
     }
     
     setFilteredBooks(results);
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, books]);
 
   return (
     <div className="min-h-screen bg-gray-50">
