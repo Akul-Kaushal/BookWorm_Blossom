@@ -1,12 +1,20 @@
 from config import Get_db_connection
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import re 
+from fastapi.middleware.cors import CORSMiddleware
 from  typing import Optional
 import uuid
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8080"],  # or your frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/")
 def home():
