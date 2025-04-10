@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import BookCard from '@/components/BookCard';
 import CategoryFilter from '@/components/CategoryFilter';
 
+
 const Index = () => {
   const [books, setBooks] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>(['All']);
@@ -11,7 +12,6 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [filteredBooks, setFilteredBooks] = useState([]);
 
-  // 🔁 REPLACE THIS ENTIRE useEffect BLOCK
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -59,13 +59,14 @@ const Index = () => {
     setFilteredBooks(results);
   }, [searchTerm, selectedCategory, books]);
 
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onSearch={setSearchTerm} cartItemsCount={0} />
+      <Header onSearch={setSearchTerm}/>
       
       <main className="container mx-auto px-4 py-6">
         {/* Hero Section */}
-        <section className="mb-12 bg-gradient-to-r from-bookstore-purple/30 to-bookstore-rose/30 p-8 rounded-2xl">
+        {/* <section className="mb-12 bg-gradient-to-r from-bookstore-purple/30 to-bookstore-rose/30 p-8 rounded-2xl">
           <div className="max-w-2xl">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">
               Discover your next favorite book
@@ -83,7 +84,7 @@ const Index = () => {
               </button>
             </div>
           </div>
-        </section>
+        </section> */}
         
         {/* Category Filter */}
         <section className="mb-8">
