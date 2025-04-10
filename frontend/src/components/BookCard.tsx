@@ -16,7 +16,7 @@ interface BookProps {
   coverimage: string;
 }
 
-const BookCard = ({
+const Books = ({
   id,
   product_id,
   product,
@@ -25,24 +25,24 @@ const BookCard = ({
   status,
   coverimage,
 }: BookProps) => {
-  const cart = useCart();
+  const cart = useCart(); // contains cartItems, loading
   const [quantity, setQuantity] = useState(0);
-  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    const item = cart.cartItems.find((i) => i.product_id === product_id);
-    if (item && item.quantity !== quantity) {
-      setQuantity(item.quantity);
-    }
-  }, [cart.cartItems, product_id]);
+  console.log("Cart items:", cart.cartItems);
+  const item = cart.cartItems.find((i) => i.product_id === product_id);
+  console.log("Matching item:", item);
+  setQuantity(item?.quantity || 0);
+}, [cart.loading, cart.cartItems, product_id]);
+
 
   const handleIncrement = async () => {
-    if (quantity >= 5) return toast.info("Maximum 5 books per order");
+    if (quantity >= 5) {
+      toast.info("Maximum 5 books per order");
+      return;
+    }
 
-    setUpdating(true);
     const result = await updateCart(product_id, "add");
-    setUpdating(false);
-
     if (result.success) {
       setQuantity((prev) => prev + 1);
       toast.success("Added item");
@@ -51,13 +51,11 @@ const BookCard = ({
     }
   };
 
+  // ✅ Remove book
   const handleDecrement = async () => {
     if (quantity <= 0) return;
 
-    setUpdating(true);
     const result = await updateCart(product_id, "remove");
-    setUpdating(false);
-
     if (result.success) {
       setQuantity((prev) => prev - 1);
       toast.success("Removed item");
@@ -104,7 +102,6 @@ const BookCard = ({
                 variant="outline"
                 className="h-8 w-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-full"
                 onClick={handleDecrement}
-                disabled={updating}
               >
                 <MinusIcon className="h-4 w-4" />
               </Button>
@@ -114,7 +111,6 @@ const BookCard = ({
                 variant="outline"
                 className="h-8 w-8 bg-green-100 hover:bg-green-200 text-green-600 rounded-full"
                 onClick={handleIncrement}
-                disabled={updating}
               >
                 <PlusIcon className="h-4 w-4" />
               </Button>
@@ -154,7 +150,10 @@ const BookCard = ({
   );
 };
 
-export default BookCard;
+export default Books;
+
+
+
 
 
 

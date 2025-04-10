@@ -5,10 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import SearchBar from "./SearchBar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useCart, Product } from "@/hooks/use-cart";
+import { useCartStore, Product } from "@/data/userCartStore"; // ✅ Zustand store
 import CartItem from "@/components/Cartitem";
 import CartSummary from "@/components/cartSummary";
-import axios from "axios"
 
 interface HeaderProps {
   onSearch: (searchTerm: string) => void;
@@ -22,18 +21,32 @@ interface CartEntry {
 const Header = ({ onSearch }: HeaderProps) => {
   const isMobile = useIsMobile();
   const [isCartVisible, setIsCartVisible] = useState(false);
-  const { cartItems, cartItemsCount } = useCart(); // fetched from backend
 
-  // Local cart state for UI control
+  const { cartItems, cartItemsCount, fetchCart } = useCartStore(); // ✅ Zustand
   const [cartStateItems, setCartStateItems] = useState<CartEntry[]>([]);
 
-  // Sync local cart state when backend data changes
+  // ✅ Fetch cart from backend once on mount
   useEffect(() => {
-    const newCartState = cartItems.map((item) => ({
+    fetchCart();
+  }, [fetchCart]);
+
+  // ✅ Sync local UI state with Zustand cart
+  useEffect(() => {
+    if (Array.isArray(cartItems)) {
+      const updated = cartItems.map((item) => ({
+        product: item,
+        quantity: item.quantity,
+      }));
+      setCartStateItems(updated);
+    }
+  }, [cartItems]);
+  
+  useEffect(() => {
+    const updated = cartItems.map((item) => ({
       product: item,
       quantity: item.quantity,
     }));
-    setCartStateItems(newCartState);
+    setCartStateItems(updated);
   }, [cartItems]);
 
   const toggleCart = () => setIsCartVisible((prev) => !prev);
@@ -55,7 +68,6 @@ const Header = ({ onSearch }: HeaderProps) => {
   return (
     <header className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Logo */}
         <div className="flex items-center gap-2">
           {isMobile && (
             <Button variant="ghost" size="icon" className="lg:hidden">
@@ -70,7 +82,6 @@ const Header = ({ onSearch }: HeaderProps) => {
           </div>
         </div>
 
-        {/* Desktop Nav */}
         {!isMobile && (
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium ml-8">
             <a href="/" className="text-gray-800 hover:text-bookstore-purple">Home</a>
@@ -81,18 +92,15 @@ const Header = ({ onSearch }: HeaderProps) => {
           </nav>
         )}
 
-        {/* Search */}
         <div className="hidden md:block flex-1 mx-4">
           <SearchBar onSearch={onSearch} />
         </div>
 
-        {/* Actions */}
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon">
             <Heart className="h-5 w-5 text-gray-600" />
           </Button>
 
-          {/* Cart Button */}
           <Button variant="ghost" size="icon" className="relative" onClick={toggleCart}>
             <ShoppingCart className="h-5 w-5 text-gray-600" />
             {cartItemsCount > 0 && (
@@ -102,7 +110,6 @@ const Header = ({ onSearch }: HeaderProps) => {
             )}
           </Button>
 
-          {/* Avatar */}
           <Avatar className="h-8 w-8 ml-2">
             <AvatarImage />
             <AvatarFallback className="bg-bookstore-rose text-bookstore-purple">Ak</AvatarFallback>
@@ -110,14 +117,12 @@ const Header = ({ onSearch }: HeaderProps) => {
         </div>
       </div>
 
-      {/* Mobile Search */}
       {isMobile && (
         <div className="px-4 py-2 border-t border-gray-100">
           <SearchBar onSearch={onSearch} />
         </div>
       )}
 
-      {/* Cart Drawer */}
       {isCartVisible && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/30" onClick={toggleCart}></div>
